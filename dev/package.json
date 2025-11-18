@@ -1,6 +1,7 @@
 {
   "name": "website",
   "version": "1.0.0",
+  "private": true,
   "description": "Website template for Payload",
   "license": "MIT",
   "type": "module",
