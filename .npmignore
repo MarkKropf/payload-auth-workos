@@ -1,0 +1,16 @@
+src/
+dev/
+.vscode/
+*.log
+.env*
+tsconfig.json
+tsup.config.ts
+vitest.config.ts
+eslint.config.js
+.prettierrc.json
+.git/
+.github/
+node_modules/
+coverage/
+*.test.ts
+*.spec.ts

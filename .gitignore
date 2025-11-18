@@ -34,3 +34,29 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# plugin build
+/dist
+*.d.ts
+*.d.cts
+
+# dev environment
+/dev/.env
+/dev/node_modules
+/dev/.next
+/dev/out
+/dev/build
+
+# Cursor AI specific files and directories
+.cursorignore
+.cursorindexingignore
+.cursorban
+/.cursor/
+.cursor*
+
+# Claude specific files and directories
+CLAUDE.local.md
+/.claude/
+
+# Amp specific files and directories
+/.amp/
