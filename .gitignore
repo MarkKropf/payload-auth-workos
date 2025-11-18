@@ -60,3 +60,7 @@ CLAUDE.local.md
 
 # Amp specific files and directories
 /.amp/
+
+# playwright output
+/playwright-report
+/test-results

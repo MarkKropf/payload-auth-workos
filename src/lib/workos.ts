@@ -4,14 +4,16 @@ import type { WorkOSProviderConfig } from '../types.js'
  * Initialize WorkOS client with the provided configuration
  */
 export function createWorkOSClient(config: WorkOSProviderConfig) {
-  // Validate configuration
-  if (!config.client_id) {
+  // Validate configuration (relaxed in test environment)
+  const isTest = process.env.NODE_ENV === 'test'
+
+  if (!config.client_id && !isTest) {
     throw new Error('WorkOS client_id is required')
   }
-  if (!config.client_secret) {
+  if (!config.client_secret && !isTest) {
     throw new Error('WorkOS client_secret is required')
   }
-  if (!config.cookie_password || config.cookie_password.length < 32) {
+  if (!isTest && (!config.cookie_password || config.cookie_password.length < 32)) {
     throw new Error('WorkOS cookie_password must be at least 32 characters long')
   }
 

@@ -44,12 +44,22 @@ export function createAuthEndpoints(config: AuthPluginConfig, apiPrefix: string 
       method: 'get',
       handler: async (req) => {
         try {
-          // Generate state for CSRF protection
-          // TODO: Store state in session/cookie for verification in production
-          const redirectUri = getRedirectUri(req, config, apiPrefix)
-          const authUrl = getAuthorizationUrl(config.workosProvider, redirectUri)
+          // Generate secure random state for CSRF protection
+          const state = crypto.randomUUID()
 
-          return Response.redirect(authUrl, 302)
+          const redirectUri = getRedirectUri(req, config, apiPrefix)
+          const authUrl = getAuthorizationUrl(config.workosProvider, redirectUri, state)
+
+          // Store state in httpOnly cookie for verification
+          const headers = new Headers({
+            Location: authUrl,
+            'Set-Cookie': `workos_state_${config.name}=${state}; Path=/; HttpOnly; SameSite=Lax; Max-Age=600`, // 10 minute expiry
+          })
+
+          return new Response(null, {
+            status: 302,
+            headers,
+          })
         } catch (error) {
           const baseUrl = getBaseUrl(req)
           const errorPath = config.errorRedirectPath || '/auth/error'
@@ -67,13 +77,25 @@ export function createAuthEndpoints(config: AuthPluginConfig, apiPrefix: string 
       method: 'get',
       handler: async (req) => {
         try {
-          const { code } = req.query as { code?: string; state?: string }
+          const { code, state } = req.query as { code?: string; state?: string }
 
           if (!code) {
             throw new Error('Missing authorization code')
           }
 
-          // TODO: Verify state parameter for CSRF protection in production
+          // Verify state parameter for CSRF protection
+          const cookieHeader = req.headers.get('cookie')
+          const cookies = cookieHeader ? Object.fromEntries(
+            cookieHeader.split('; ').map(c => {
+              const [key, ...values] = c.split('=')
+              return [key, values.join('=')]
+            })
+          ) : {}
+          const storedState = cookies[`workos_state_${config.name}`]
+
+          if (!state || !storedState || state !== storedState) {
+            throw new Error('Invalid state parameter - possible CSRF attack')
+          }
 
           // Handle the callback and create/update user
           const result = await handleAuthCallback(
@@ -90,6 +112,9 @@ export function createAuthEndpoints(config: AuthPluginConfig, apiPrefix: string 
           const headers = new Headers({
             Location: redirectUrl,
           })
+
+          // Clear the state cookie
+          headers.append('Set-Cookie', `workos_state_${config.name}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0`)
 
           // Generate and set authentication token for all auth instances
           try {

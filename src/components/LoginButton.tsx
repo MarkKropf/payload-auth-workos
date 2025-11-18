@@ -62,9 +62,9 @@ export const LoginButton: React.FC<LoginButtonProps> = ({
       }}
     >
       <a
+        className={buttonClasses}
         href={href}
         onClick={handleClick}
-        className={buttonClasses}
         style={style}
         type="button"
       >
