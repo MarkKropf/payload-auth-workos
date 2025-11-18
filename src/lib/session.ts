@@ -13,6 +13,7 @@ export async function generateUserToken(
   try {
     // Get the user document
     const user = await payload.findByID({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic collection slug parameter
       collection: collectionSlug as any,
       id: userId,
     })
@@ -22,6 +23,7 @@ export async function generateUserToken(
     }
 
     // Get the collection config
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Payload's collections object uses dynamic keys
     const collection = (payload.collections as any)[collectionSlug]
 
     if (!collection || !collection.config.auth) {
@@ -32,13 +34,15 @@ export async function generateUserToken(
     // Augment user object with collection property required by Payload
     const userWithCollection = {
       ...user,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic collection slug parameter
       collection: collectionSlug as any,
     }
 
     const fieldsToSign = getFieldsToSign({
       collectionConfig: collection.config,
       email: user.email as string,
-      user: userWithCollection as any, // Cast to avoid type issues with user structure
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Payload's getFieldsToSign requires augmented user type
+      user: userWithCollection as any,
     })
 
     // Sign the JWT using Payload's jwtSign function
@@ -50,6 +54,7 @@ export async function generateUserToken(
 
     return { token, exp }
   } catch (error) {
+    // eslint-disable-next-line no-console -- Legitimate error logging for debugging
     console.error('Error generating user token:', error)
     throw error
   }
@@ -67,6 +72,7 @@ export function getPayloadCookies(
   collectionSlug: string,
   token: string,
 ): string[] {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Payload's collections object uses dynamic keys
   const collection = (payload.collections as any)[collectionSlug]
 
   if (!collection || !collection.config.auth) {
@@ -151,6 +157,7 @@ export function getExpiredPayloadCookies(
   payload: Payload,
   collectionSlug: string,
 ): string[] {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Payload's collections object uses dynamic keys
   const collection = (payload.collections as any)[collectionSlug]
 
   if (!collection || !collection.config.auth) {

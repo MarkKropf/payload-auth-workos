@@ -32,6 +32,7 @@ export const withAccountCollection = (
     {
       name: 'user',
       type: 'relationship',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic collection slug from user input
       relationTo: usersCollectionSlug as any,
       required: true,
       index: true,

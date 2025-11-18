@@ -26,7 +26,7 @@ export default [
   {
     ignores: [
       ...defaultESLintIgnores,
-      '**/dev/.next/**',
+      '**/dev/**', // Ignore the entire dev directory (separate app)
       '**/examples/**',
     ],
   },

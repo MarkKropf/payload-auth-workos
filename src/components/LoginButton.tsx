@@ -62,6 +62,7 @@ export const LoginButton: React.FC<LoginButtonProps> = ({
       }}
     >
       <a
+        aria-label={label}
         className={buttonClasses}
         href={href}
         onClick={handleClick}

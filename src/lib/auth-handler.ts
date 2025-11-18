@@ -21,6 +21,7 @@ export async function handleAuthCallback(
 
     // Check if user already exists by WorkOS user ID
     const existingUsers = await payload.find({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic collection slug from config
       collection: config.usersCollectionSlug as any,
       where: {
         workosUserId: {
@@ -37,6 +38,7 @@ export async function handleAuthCallback(
       // Update existing user
       userId = existingUsers.docs[0].id
       user = (await payload.update({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic collection slug from config
         collection: config.usersCollectionSlug as any,
         id: userId,
         data: {
@@ -54,6 +56,7 @@ export async function handleAuthCallback(
 
       // Check if user exists by email
       const existingUserByEmail = await payload.find({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic collection slug from config
         collection: config.usersCollectionSlug as any,
         where: {
           email: {
@@ -67,6 +70,7 @@ export async function handleAuthCallback(
         // Link WorkOS account to existing user
         userId = existingUserByEmail.docs[0].id
         user = (await payload.update({
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic collection slug from config
           collection: config.usersCollectionSlug as any,
           id: userId,
           data: {
@@ -79,6 +83,7 @@ export async function handleAuthCallback(
       } else {
         // Create new user
         user = (await payload.create({
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic collection slug from config
           collection: config.usersCollectionSlug as any,
           data: {
             email: workosUser.email,
@@ -94,6 +99,7 @@ export async function handleAuthCallback(
 
     // Create or update account record
     const existingAccount = await payload.find({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic collection slug from config
       collection: config.accountsCollectionSlug as any,
       where: {
         and: [
@@ -118,6 +124,7 @@ export async function handleAuthCallback(
 
     if (existingAccount.docs.length > 0) {
       await payload.update({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic collection slug from config
         collection: config.accountsCollectionSlug as any,
         id: existingAccount.docs[0].id,
         data: {
@@ -130,6 +137,7 @@ export async function handleAuthCallback(
       })
     } else {
       await payload.create({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic collection slug from config
         collection: config.accountsCollectionSlug as any,
         data: {
           user: userId,

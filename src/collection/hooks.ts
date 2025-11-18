@@ -26,6 +26,7 @@ export const deleteLinkedAccounts =
 
     // Delete all accounts linked to this user
     await payload.delete({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic collection slug from user input
       collection: accountsSlug as any,
       where: {
         user: { equals: user.id },

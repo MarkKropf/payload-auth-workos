@@ -232,7 +232,7 @@ export function createAuthEndpoints(config: AuthPluginConfig, apiPrefix: string 
               authenticated: false,
             })
           }
-        } catch (error) {
+        } catch {
           return Response.json(
             {
               error: 'Failed to check session',

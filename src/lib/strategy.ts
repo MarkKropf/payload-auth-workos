@@ -10,6 +10,7 @@ export function createWorkOSStrategy(collectionSlug: string) {
     name: 'workos',
     authenticate: async ({ headers, payload }: { headers: Headers; payload: Payload }) => {
       try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Payload's collections object uses dynamic keys
         const collection = (payload.collections as any)[collectionSlug]
 
         if (!collection || !collection.config.auth) {
@@ -46,6 +47,7 @@ export function createWorkOSStrategy(collectionSlug: string) {
         }
 
         const user = await payload.findByID({
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic collection slug parameter
           collection: collectionSlug as any,
           id: jwtPayload.id as string | number,
         })
@@ -58,10 +60,11 @@ export function createWorkOSStrategy(collectionSlug: string) {
           user: {
             ...user,
             _strategy: 'workos',
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic collection slug parameter for user augmentation
             collection: collectionSlug as any,
           },
         }
-      } catch (error) {
+      } catch {
         return { user: null }
       }
     },
