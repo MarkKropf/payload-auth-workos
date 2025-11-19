@@ -11,6 +11,6 @@ export { LoginButton } from '../components/LoginButton.js'
 export type { LoginButtonProps } from '../components/LoginButton.js'
 
 // Client-side auth context
-export { AuthProvider, useAuth } from '../components/AuthClient.js'
+export { AuthProvider, useAuth, createAuthClient } from '../components/AuthClient.js'
 export type { AuthContextType, AuthProviderProps } from '../components/AuthClient.js'
 

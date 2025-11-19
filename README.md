@@ -74,9 +74,58 @@ export default function LoginPage() {
   return (
     <div>
       <h1>Sign In</h1>
-      <a href="/api/{collection slug}/auth/signin">Sign in with WorkOS</a>
+      <a href="/api/{name}/auth/signin">Sign in with WorkOS</a>
     </div>
   )
+}
+```
+*Note: Replace `{name}` with the `name` property you defined in your plugin configuration (e.g., `workos-auth`, `app`, `admin`).*
+
+### 5. Client-Side Session Management
+
+To access the current user in your Next.js Client Components, use the provided `AuthProvider` and `useAuth` hook.
+
+**Layout (Server Component):**
+
+```tsx
+// app/layout.tsx
+import { getPayload } from 'payload'
+import config from '@payload-config'
+import { headers } from 'next/headers'
+import { AuthProvider } from 'payload-auth-workos/client'
+
+export default async function RootLayout({ children }) {
+  const payload = await getPayload({ config })
+  // Verify auth using Payload's native API
+  const { user } = await payload.auth({ headers: await headers() })
+
+  return (
+    <html>
+      <body>
+        {/* Pass the server-verified user to the client provider */}
+        <AuthProvider user={user}>
+          {children}
+        </AuthProvider>
+      </body>
+    </html>
+  )
+}
+```
+
+**Component (Client Component):**
+
+```tsx
+// components/UserProfile.tsx
+'use client'
+import { useAuth } from 'payload-auth-workos/client'
+
+export function UserProfile() {
+  const { user } = useAuth()
+
+  // Assuming your plugin name is 'workos-auth'
+  if (!user) return <a href="/api/workos-auth/auth/signin">Sign in</a>
+
+  return <div>Hello, {user.email}</div>
 }
 ```
 
@@ -158,6 +207,66 @@ export default buildConfig({
 })
 ```
 
+### Client-Side Authentication for Multiple Collections
+
+When using multiple authentication scopes (e.g., admin and app), you can create isolated client-side auth providers to prevent state conflicts:
+
+```tsx
+// lib/auth.ts
+import { createAuthClient } from 'payload-auth-workos/client'
+
+export const adminAuth = createAuthClient('admin')
+export const appAuth = createAuthClient('app')
+```
+
+**Usage in Layouts:**
+
+You can use the respective providers in your route groups (e.g., `(app)` and `(admin)`):
+
+```tsx
+// app/(app)/layout.tsx
+import { appAuth } from '@/lib/auth'
+
+// ... verify app user server-side
+<appAuth.AuthProvider user={appUser}>
+  {children}
+</appAuth.AuthProvider>
+```
+
+```tsx
+// app/(admin)/layout.tsx
+import { adminAuth } from '@/lib/auth'
+
+// ... verify admin user server-side
+<adminAuth.AuthProvider user={adminUser}>
+  {children}
+</adminAuth.AuthProvider>
+```
+
+**Usage in Components:**
+
+```tsx
+// app/(app)/components/Header.tsx
+'use client'
+import { appAuth } from '@/lib/auth'
+
+export function AppHeader() {
+  const { user } = appAuth.useAuth()
+  // ...
+}
+```
+
+```tsx
+// app/(admin)/components/AdminSidebar.tsx
+'use client'
+import { adminAuth } from '@/lib/auth'
+
+export function AdminSidebar() {
+  const { user } = adminAuth.useAuth()
+  // ...
+}
+```
+
 ### Cookie Management in Multi-Collection Setups
 
 When using multiple auth collections, the plugin automatically manages cookies to prevent conflicts and ensure compatibility with Payload's admin panel.
@@ -229,7 +338,7 @@ import { LoginButton } from 'payload-auth-workos/client'
 const WorkOSLoginButton = () => {
   return (
     <LoginButton
-      href="/api/{collection slug}/auth/signin"
+      href="/api/{name}/auth/signin"
       label="Sign in with WorkOS"
     />
   )
@@ -425,17 +534,12 @@ authPlugin({
 
 The plugin creates the following endpoints for each configuration:
 
-- `GET /api/auth/{name}/signin` - Initiates OAuth flow
-- `GET /api/auth/{name}/callback` - Handles OAuth callback
-- `GET /api/auth/{name}/signout` - Signs out the user
-- `GET /api/auth/{name}/session` - Returns current session status
+- `GET /api/{name}/auth/signin` - Initiates OAuth flow
+- `GET /api/{name}/auth/callback` - Handles OAuth callback
+- `GET /api/{name}/auth/signout` - Signs out the user
+- `GET /api/{name}/auth/session` - Returns current session status
 
-For admin configurations (`useAdmin: true`), endpoints are prefixed with `/admin`:
-
-- `GET /admin/auth/{name}/signin`
-- `GET /admin/auth/{name}/callback`
-- `GET /admin/auth/{name}/signout`
-- `GET /admin/auth/{name}/session`
+(Assuming default `/api` route prefix. If you use a custom `routes.api`, adjust accordingly).
 
 ## Collections Schema
 
@@ -564,12 +668,17 @@ import {
 For client-side components (use in files with `'use client'` directive):
 
 ```typescript
-import { LoginButton } from 'payload-auth-workos/client'
-import type { LoginButtonProps } from 'payload-auth-workos/client'
+import { LoginButton, AuthProvider, useAuth, createAuthClient } from 'payload-auth-workos/client'
+import type { LoginButtonProps, AuthContextType, AuthProviderProps } from 'payload-auth-workos/client'
 ```
 
 - `LoginButton` - Customizable login button component for admin panel
+- `AuthProvider` - Context provider for user sessions
+- `useAuth` - Hook to access the current user session
+- `createAuthClient(slug)` - Factory to create isolated auth clients for multi-collection setups
 - `LoginButtonProps` - TypeScript type for LoginButton props
+- `AuthContextType` - TypeScript type for auth context
+- `AuthProviderProps` - TypeScript type for auth provider props
 
 ## Development
 
@@ -625,18 +734,18 @@ The plugin automatically generates OAuth redirect URIs based on your configurati
 
 **Format:**
 
-- Standard endpoints: `{baseUrl}/api/auth/{name}/callback`
-- Admin endpoints (`useAdmin: true`): `{baseUrl}/admin/auth/{name}/callback`
+- Standard endpoints: `{baseUrl}/api/{name}/auth/callback`
+- Admin endpoints (`useAdmin: true`): `{baseUrl}/api/{name}/auth/callback`
 
 Where `{name}` is the value you specified in your plugin's `name` configuration.
 
 **Examples:**
 
-- Plugin with `name: 'workos-auth'` → `http://127.0.0.1:3000/api/auth/workos-auth/callback`
-- Plugin with `name: 'admin'` and `useAdmin: true` → `http://127.0.0.1:3000/admin/auth/admin/callback`
-- Plugin with `name: 'app'` → `http://127.0.0.1:3000/api/auth/app/callback`
+- Plugin with `name: 'workos-auth'` → `http://127.0.0.1:3000/api/workos-auth/auth/callback`
+- Plugin with `name: 'admin'` (even with `useAdmin: true`) → `http://127.0.0.1:3000/api/admin/auth/callback`
+- Plugin with `name: 'app'` → `http://127.0.0.1:3000/api/app/auth/callback`
 
-**Note:** All non-admin endpoints use the `/api` prefix, while admin endpoints use the `/admin` prefix.
+**Note:** All endpoints use the `/api` prefix by default (or your configured `routes.api`).
 
 **Important:** WorkOS requires `127.0.0.1` instead of `localhost`. Make sure the redirect URIs in your WorkOS dashboard match exactly, including the protocol (http/https) and port.
 

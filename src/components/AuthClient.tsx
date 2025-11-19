@@ -8,8 +8,6 @@ export interface AuthContextType<T = any> {
   setUser: (user: T | null) => void
 }
 
-const AuthContext = createContext<AuthContextType | null>(null)
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface AuthProviderProps<T = any> {
   children: React.ReactNode
@@ -17,45 +15,56 @@ export interface AuthProviderProps<T = any> {
 }
 
 /**
- * AuthProvider component to provide the user session to the application
+ * Creates a new Auth client with its own Context, Provider, and Hook.
+ * This is useful when you have multiple auth scopes (e.g., 'admin' and 'app') in the same application.
  * 
- * @example
- * // In your RootLayout or a parent Server Component:
- * const { user } = await payload.auth({ headers: req.headers })
- * 
- * return (
- *   <AuthProvider user={user}>
- *     {children}
- *   </AuthProvider>
- * )
+ * @param slug - Optional slug to identify the context (useful for debugging)
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const AuthProvider = <T = any>({ children, user: initialUser }: AuthProviderProps<T>) => {
-  const [user, setUser] = useState<T | null>(initialUser)
-
-  // Update local state if the server-provided user changes
-  useEffect(() => {
-    setUser(initialUser)
-  }, [initialUser])
-
-  return (
-    <AuthContext.Provider value={{ user, setUser }}>
-      {children}
-    </AuthContext.Provider>
-  )
-}
-
-/**
- * Hook to access the current user session
- * 
- * @example
- * const { user } = useAuth()
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const useAuth = <T = any>() => {
-  const context = useContext(AuthContext)
-  if (context === null) {
-    throw new Error('useAuth must be used within an AuthProvider')
+export const createAuthClient = <T = any>(slug?: string) => {
+  const Context = createContext<AuthContextType<T> | null>(null)
+  if (slug) {
+    Context.displayName = `AuthContext(${slug})`
   }
-  return context as AuthContextType<T>
+
+  /**
+   * AuthProvider component to provide the user session to the application
+   */
+  const AuthProvider = ({ children, user: initialUser }: AuthProviderProps<T>) => {
+    const [user, setUser] = useState<T | null>(initialUser)
+
+    // Update local state if the server-provided user changes
+    useEffect(() => {
+      setUser(initialUser)
+    }, [initialUser])
+
+    return (
+      <Context.Provider value={{ user, setUser }}>
+        {children}
+      </Context.Provider>
+    )
+  }
+
+  /**
+   * Hook to access the current user session
+   */
+  const useAuth = () => {
+    const context = useContext(Context)
+    if (context === null) {
+      throw new Error(`useAuth must be used within an AuthProvider${slug ? ` for ${slug}` : ''}`)
+    }
+    return context
+  }
+
+  return {
+    AuthProvider,
+    useAuth,
+    Context,
+  }
 }
+
+// Create a default client for general use
+const defaultClient = createAuthClient()
+
+export const AuthProvider = defaultClient.AuthProvider
+export const useAuth = defaultClient.useAuth
