@@ -2,6 +2,7 @@ import type { Config } from 'payload'
 import type { AuthPluginConfig } from './types.js'
 import { createAccountsCollection } from './collections/createAccountsCollection.js'
 import { createUsersCollection } from './collections/createUsersCollection.js'
+import { withUsersCollection } from './collection/withUsersCollection.js'
 import { createAuthEndpoints } from './endpoints/index.js'
 import { createWorkOSStrategy } from './lib/strategy.js'
 import { createWorkOSClient } from './lib/workos.js'
@@ -77,33 +78,11 @@ export function authPlugin(pluginConfig: AuthPluginConfig) {
 
       collections.push(userCollection)
     } else {
-      // Extend existing collection with WorkOS fields and strategy
+      // Extend existing collection using withUsersCollection logic to reduce code duplication
       const index = collections.findIndex((c) => c.slug === config.usersCollectionSlug)
       if (index !== -1) {
-        const existingFields = collections[index].fields || []
-        const workosFields = createUsersCollection(config.usersCollectionSlug, config.useAdmin).fields || []
-
-        // Merge fields, avoiding duplicates
-        const fieldSlugs = new Set(existingFields.map((f) => 'name' in f ? f.name : null))
-        const newFields = workosFields.filter((f) => {
-          const name = 'name' in f ? f.name : null
-          return name && !fieldSlugs.has(name)
-        })
-
-        // Add WorkOS strategy to existing auth config
-        const existingAuth = collections[index].auth
-        if (existingAuth && typeof existingAuth === 'object') {
-          existingAuth.strategies = [
-            ...(existingAuth.strategies || []),
-            workosStrategy,
-          ]
-        }
-
-        collections[index] = {
-          ...collections[index],
-          fields: [...existingFields, ...newFields],
-          auth: existingAuth,
-        }
+        // We use withUsersCollection to handle field merging and auth strategy injection
+        collections[index] = withUsersCollection(collections[index])
       }
     }
 

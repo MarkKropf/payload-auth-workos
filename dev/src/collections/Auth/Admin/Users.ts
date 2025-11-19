@@ -1,7 +1,8 @@
 import { authenticated } from '@/access/authenticated'
 import type { CollectionConfig } from 'payload'
+import { withUsersCollection } from 'payload-auth-workos/collection'
 import { deleteLinkedAccounts } from 'payload-auth-workos/collection/hooks'
-export const AdminUsers: CollectionConfig = {
+export const AdminUsers: CollectionConfig = withUsersCollection({
   slug: 'adminUsers',
   access: {
     admin: authenticated,
@@ -31,4 +32,4 @@ export const AdminUsers: CollectionConfig = {
   hooks: {
     afterDelete: [deleteLinkedAccounts('adminAccounts')],
   },
-}
+})

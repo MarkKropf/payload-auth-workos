@@ -1,5 +1,7 @@
 import type { CollectionConfig, Field } from 'payload'
 
+export { withUsersCollection } from './withUsersCollection.js'
+
 /**
  * Higher-order function that configures a collection for WorkOS account management
  *

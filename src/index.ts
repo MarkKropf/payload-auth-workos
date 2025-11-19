@@ -29,4 +29,5 @@ export { createWorkOSProviderConfig } from './lib/helpers.js'
 
 // Collection utilities for manual configuration
 export { withAccountCollection } from './collection/index.js'
+export { withUsersCollection } from './collection/withUsersCollection.js'
 export { deleteLinkedAccounts } from './collection/hooks.js'
