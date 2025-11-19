@@ -4,6 +4,10 @@
   "description": "Payload CMS authentication plugin for WorkOS",
   "author": "Mark Kropf (https://markkropf.com/",
   "homepage": "https://github.com/MarkKropf/payload-auth-workos",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MarkKropf/payload-auth-workos.git"
+  },
   "bugs": {
     "url": "https://github.com/MarkKropf/payload-auth-workos/issues"
   },
