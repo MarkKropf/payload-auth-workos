@@ -18,6 +18,8 @@ jobs:
       id-token: write # Required for npm provenance
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history for version-check to search commits
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
