@@ -31,3 +31,7 @@ export { createWorkOSProviderConfig } from './lib/helpers.js'
 export { withAccountCollection } from './collection/index.js'
 export { withUsersCollection } from './collection/withUsersCollection.js'
 export { deleteLinkedAccounts } from './collection/hooks.js'
+
+// Utilities
+export { getAdminAuthCollection } from './utilities/getAdminAuthCollection.js'
+

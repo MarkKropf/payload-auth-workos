@@ -160,7 +160,7 @@ export function UserProfile() {
 **Notes:**
 
 - You must provide either `provider`, `connection`, or `organization`. WorkOS requires one of these connection selectors.
-- The OAuth `redirect_uri` is automatically generated as `/api/auth/{name}/callback` (or `/admin/auth/{name}/callback` for admin configs) and does not need to be configured.
+- The OAuth `redirect_uri` is automatically generated as `/api/{name}/auth/callback` and does not need to be configured.
 
 ## Advanced Usage
 
@@ -221,26 +221,14 @@ export const appAuth = createAuthClient('app')
 
 **Usage in Layouts:**
 
-You can use the respective providers in your route groups (e.g., `(app)` and `(admin)`):
-
 ```tsx
 // app/(app)/layout.tsx
 import { appAuth } from '@/lib/auth'
 
-// ... verify app user server-side
+// ... inside your layout
 <appAuth.AuthProvider user={appUser}>
   {children}
 </appAuth.AuthProvider>
-```
-
-```tsx
-// app/(admin)/layout.tsx
-import { adminAuth } from '@/lib/auth'
-
-// ... verify admin user server-side
-<adminAuth.AuthProvider user={adminUser}>
-  {children}
-</adminAuth.AuthProvider>
 ```
 
 **Usage in Components:**
@@ -250,19 +238,8 @@ import { adminAuth } from '@/lib/auth'
 'use client'
 import { appAuth } from '@/lib/auth'
 
-export function AppHeader() {
+export function Header() {
   const { user } = appAuth.useAuth()
-  // ...
-}
-```
-
-```tsx
-// app/(admin)/components/AdminSidebar.tsx
-'use client'
-import { adminAuth } from '@/lib/auth'
-
-export function AdminSidebar() {
-  const { user } = adminAuth.useAuth()
   // ...
 }
 ```

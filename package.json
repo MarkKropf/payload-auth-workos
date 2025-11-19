@@ -1,6 +1,6 @@
 {
   "name": "payload-auth-workos",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Payload CMS authentication plugin for WorkOS",
   "author": "Mark Kropf (https://markkropf.com/",
   "homepage": "https://github.com/MarkKropf/payload-auth-workos",
@@ -21,7 +21,7 @@
     },
     "./client": {
       "import": "./src/exports/client.ts",
-      "types": "./src/exports/client.ts",
+      "types": "./dist/exports/client.d.ts",
       "default": "./src/exports/client.ts"
     },
     "./rsc": {
