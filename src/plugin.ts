@@ -7,6 +7,8 @@ import { createAuthEndpoints } from './endpoints/index.js'
 import { createWorkOSStrategy } from './lib/strategy.js'
 import { createWorkOSClient } from './lib/workos.js'
 
+import { setAdminAuthCollectionSlug } from './utilities/getAdminAuthCollection.js'
+
 /**
  * Payload authentication plugin for WorkOS
  *
@@ -61,6 +63,15 @@ export function authPlugin(pluginConfig: AuthPluginConfig) {
 
     // Create or extend collections
     const collections = [...(incomingConfig.collections || [])]
+
+    // Determine the admin user slug
+    let adminUserSlug = incomingConfig.admin?.user || 'users'
+    if (config.useAdmin) {
+      adminUserSlug = config.usersCollectionSlug
+    }
+
+    // Set it globally for the utility to use
+    setAdminAuthCollectionSlug(adminUserSlug)
 
     // Create the WorkOS authentication strategy for this collection
     const workosStrategy = createWorkOSStrategy(config.usersCollectionSlug)
