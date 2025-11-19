@@ -17,8 +17,15 @@ export function createWorkOSStrategy(collectionSlug: string) {
           return { user: null }
         }
 
+        // Compliant CSRF/Origin check matching Payload's extractJWT behavior
+        const origin = headers.get('Origin')
+        if (origin && payload.config.csrf && payload.config.csrf.length > 0 && !payload.config.csrf.includes(origin)) {
+          return { user: null }
+        }
+
         const cookiePrefix = payload.config.cookiePrefix || 'payload'
-        const cookieName = `${cookiePrefix}-token`
+        const isAdmin = payload.config.admin?.user === collectionSlug
+        const cookieName = isAdmin ? `${cookiePrefix}-token` : `${cookiePrefix}-token-${collectionSlug}`
 
         const cookieHeader = headers.get('cookie')
         if (!cookieHeader) {

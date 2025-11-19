@@ -30,6 +30,33 @@ export async function generateUserToken(
       throw new Error('Collection does not have auth enabled')
     }
 
+    const authConfig = collection.config.auth
+    let sid: string | undefined
+
+    if (authConfig.useSessions) {
+      // Generate session ID
+      sid = crypto.randomUUID()
+
+      // Create session object
+      const session = {
+        id: sid,
+        createdAt: new Date().toISOString(),
+        // Expiry will be handled by maxInactivity if configured, or tokenExpiration
+        expiresAt: new Date(Date.now() + (authConfig.tokenExpiration || 7200) * 1000).toISOString(),
+      }
+
+      // Update user with new session
+      // Payload v3 handles sessions in the `sessions` array on the user
+      await payload.update({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic collection slug
+        collection: collectionSlug as any,
+        id: userId,
+        data: {
+          sessions: [...(user.sessions || []), session],
+        },
+      })
+    }
+
     // Get fields to sign using Payload's helper
     // Augment user object with collection property required by Payload
     const userWithCollection = {
@@ -43,6 +70,7 @@ export async function generateUserToken(
       email: user.email as string,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Payload's getFieldsToSign requires augmented user type
       user: userWithCollection as any,
+      sid,
     })
 
     // Sign the JWT using Payload's jwtSign function

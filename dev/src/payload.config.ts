@@ -101,7 +101,7 @@ export default buildConfig({
     }),
     ...plugins,
   ],
-  secret: process.env.PAYLOAD_SECRET,
+  secret: process.env.PAYLOAD_SECRET as string,
   sharp,
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),

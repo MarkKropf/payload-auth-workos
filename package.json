@@ -1,6 +1,6 @@
 {
   "name": "payload-auth-workos",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Payload CMS authentication plugin for WorkOS",
   "author": "Mark Kropf (https://markkropf.com/",
   "homepage": "https://github.com/MarkKropf/payload-auth-workos",

@@ -16,6 +16,10 @@ export const AdminUsers: CollectionConfig = {
   },
   auth: {
     disableLocalStrategy: true,
+    cookies: {
+      secure: true,
+      sameSite: true,
+    }
   },
   fields: [
     {
