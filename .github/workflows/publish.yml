@@ -9,6 +9,7 @@ on:
       - 'dev/**'
       - 'examples/**'
       - '.github/**'
+  workflow_dispatch:  # Allow manual triggering
 
 jobs:
   publish:
