@@ -48,18 +48,25 @@ jobs:
       - name: Build
         run: pnpm build
 
-      - name: Check if version has been updated
+      - name: Check if version exists on npm
         id: check
-        uses: EndBug/version-check@v2
-        with:
-          diff-search: true
+        run: |
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          if npm view payload-auth-workos@$PACKAGE_VERSION version 2>/dev/null; then
+            echo "Version $PACKAGE_VERSION already exists on npm"
+            echo "should_publish=false" >> $GITHUB_OUTPUT
+          else
+            echo "Version $PACKAGE_VERSION does not exist on npm, will publish"
+            echo "should_publish=true" >> $GITHUB_OUTPUT
+            echo "version=$PACKAGE_VERSION" >> $GITHUB_OUTPUT
+          fi
 
       - name: Publish to npm
-        if: steps.check.outputs.changed == 'true'
+        if: steps.check.outputs.should_publish == 'true'
         run: pnpm publish --no-git-checks --provenance --access public
 
       - name: Create GitHub Release
-        if: steps.check.outputs.changed == 'true'
+        if: steps.check.outputs.should_publish == 'true'
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
