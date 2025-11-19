@@ -37,8 +37,6 @@ next-env.d.ts
 
 # plugin build
 /dist
-*.d.ts
-*.d.cts
 
 # dev environment
 /dev/.env
