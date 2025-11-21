@@ -26,6 +26,7 @@ describe('withUsersCollection', () => {
     })
 
     expect(config.endpoints).toBeDefined()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const logoutEndpoint = (config.endpoints as any[])?.find((e: any) => e.path === '/logout' && e.method === 'post')
     expect(logoutEndpoint).toBeDefined()
   })
@@ -38,6 +39,7 @@ describe('withUsersCollection', () => {
       },
     })
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const logoutEndpoint = (config.endpoints as any[])?.find((e: any) => e.path === '/logout' && e.method === 'post')
     
     const mockReq = {
@@ -58,6 +60,7 @@ describe('withUsersCollection', () => {
     }
 
     // Execute handler
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const response = await logoutEndpoint?.handler(mockReq)
     

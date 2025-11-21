@@ -75,9 +75,8 @@ export const withUsersCollection = (
         // If sessions are enabled, clear the session from the database
         if (typeof authConfig === 'object' && authConfig !== null && 'useSessions' in authConfig && authConfig.useSessions && req.user) {
           try {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic collection slug parameter
             await req.payload.update({
-              collection: incomingCollection.slug as any,
+              collection: incomingCollection.slug as any, // eslint-disable-line @typescript-eslint/no-explicit-any -- Dynamic collection slug parameter
               id: req.user.id,
               data: {
                 sessions: [],
