@@ -17,6 +17,7 @@ export const AppUsers: CollectionConfig = withUsersCollection({
   },
   auth: {
     disableLocalStrategy: true,
+    useSessions: true,
     cookies: {
       secure: true,
       sameSite: true,

@@ -244,8 +244,5 @@ export function createAuthEndpoints(config: AuthPluginConfig, apiPrefix: string 
     },
   ]
 
-  // Note: Logout endpoint is now handled at the collection level
-  // See createUsersCollection.ts for the collection-level logout endpoint override
-
   return endpoints
 }

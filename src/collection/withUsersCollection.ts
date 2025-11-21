@@ -1,6 +1,7 @@
-import type { CollectionConfig, Field } from 'payload'
+import type { CollectionConfig, Field, Endpoint } from 'payload'
 import { createWorkOSStrategy } from '../lib/strategy.js'
 import { createUsersCollection } from '../collections/createUsersCollection.js'
+import { getExpiredPayloadCookies } from '../lib/session.js'
 
 /**
  * Higher-order function that configures a collection for WorkOS user management
@@ -64,10 +65,71 @@ export const withUsersCollection = (
     }
   }
 
+  // Create custom logout endpoint that properly clears sessions
+  // This overrides Payload's default logout which doesn't work with disableLocalStrategy
+  const logoutEndpoint: Endpoint = {
+    path: '/logout',
+    method: 'post',
+    handler: async (req) => {
+      try {
+        // If sessions are enabled, clear the session from the database
+        if (typeof authConfig === 'object' && authConfig !== null && 'useSessions' in authConfig && authConfig.useSessions && req.user) {
+          try {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic collection slug parameter
+            await req.payload.update({
+              collection: incomingCollection.slug as any,
+              id: req.user.id,
+              data: {
+                sessions: [],
+              },
+            })
+          } catch {
+            // Continue even if session clearing fails
+          }
+        }
+
+        // Generate expired cookies to clear the session
+        const expiredCookies = getExpiredPayloadCookies(
+          req.payload,
+          incomingCollection.slug,
+        )
+
+        // Return success with expired cookies
+        const headers = new Headers()
+        expiredCookies.forEach((cookie) => {
+          headers.append('Set-Cookie', cookie)
+        })
+
+        return Response.json(
+          { message: 'Logged out successfully.' },
+          {
+            status: 200,
+            headers,
+          },
+        )
+      } catch (error) {
+        return Response.json(
+          {
+            errors: [
+              {
+                message: error instanceof Error ? error.message : 'An error occurred while logging out.',
+              },
+            ],
+          },
+          { status: 500 },
+        )
+      }
+    },
+  }
+
+  // Merge custom logout endpoint with any existing endpoints
+  const endpoints = [...(incomingCollection.endpoints || []), logoutEndpoint]
+
   return {
     ...incomingCollection,
     fields,
     auth: authConfig,
+    endpoints,
     // Merge admin config if needed, keeping defaults if not overridden
     admin: {
       ...baseConfig.admin,

@@ -31,4 +31,9 @@
     "./src/**/*.tsx",
     "./dev/next-env.d.ts",
   ],
+  "exclude": [
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "dev"
+  ]
 }

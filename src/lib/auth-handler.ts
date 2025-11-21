@@ -49,11 +49,6 @@ export async function handleAuthCallback(
         },
       })) as Record<string, unknown> & { id: string | number }
     } else {
-      // Check if sign-up is allowed
-      if (config.allowSignUp === false) {
-        throw new Error('Sign-up is not allowed')
-      }
-
       // Check if user exists by email
       const existingUserByEmail = await payload.find({
         // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic collection slug from config
@@ -81,6 +76,11 @@ export async function handleAuthCallback(
           },
         })) as Record<string, unknown> & { id: string | number }
       } else {
+        // Check if sign-up is allowed
+        if (config.allowSignUp === false) {
+          throw new Error('Sign-up is not allowed')
+        }
+
         // Create new user
         user = (await payload.create({
           // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic collection slug from config
