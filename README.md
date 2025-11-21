@@ -42,6 +42,12 @@ WORKOS_COOKIE_PASSWORD=your_secure_32_character_minimum_password
 WORKOS_PROVIDER=GoogleOAuth
 ```
 
+You can generate a secure cookie password using:
+
+```bash
+openssl rand -base64 32
+```
+
 ### 3. Add the Plugin to Your Payload Config
 
 ```typescript
