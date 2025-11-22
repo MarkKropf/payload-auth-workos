@@ -1,0 +1,12 @@
+# Example .npmrc configuration for installing from GitHub Packages
+# Copy this file to .npmrc and replace YOUR_GITHUB_TOKEN with a personal access token
+
+# Configure @markkropf scope to use GitHub Packages registry
+@markkropf:registry=https://npm.pkg.github.com
+
+# Authenticate to GitHub Packages (replace YOUR_GITHUB_TOKEN with your token)
+# //npm.pkg.github.com/:_authToken=YOUR_GITHUB_TOKEN
+
+# Note: This package is also available on npmjs.com
+# To install from npm: npm install @markkropf/payload-auth-workos
+# To install from GitHub Packages: npm install @markkropf/payload-auth-workos (with this .npmrc configured)

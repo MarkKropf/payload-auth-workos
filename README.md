@@ -15,8 +15,17 @@ A Payload CMS authentication plugin that integrates [WorkOS](https://workos.com)
 ## Installation
 
 ```bash
+# From npmjs.com (recommended)
 pnpm add payload-auth-workos
+
+# Or from GitHub Packages (scoped name, requires authentication)
+pnpm add @markkropf/payload-auth-workos --registry=https://npm.pkg.github.com
 ```
+
+The package is published to both:
+
+- **npmjs.com**: `payload-auth-workos` (unscoped) - [View on npm](https://www.npmjs.com/package/payload-auth-workos)
+- **GitHub Packages**: `@markkropf/payload-auth-workos` (scoped) - [View on GitHub](https://github.com/MarkKropf/payload-auth-workos/pkgs/npm/payload-auth-workos)
 
 ## Quick Start
 
