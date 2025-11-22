@@ -98,15 +98,11 @@ jobs:
 
       - name: Create GitHub Release
         if: steps.check.outputs.should_publish == 'true'
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: v${{ steps.check.outputs.version }}
-          release_name: v${{ steps.check.outputs.version }}
-          body: |
-            Release ${{ steps.check.outputs.version }}
+        run: |
+          gh release create "v${{ steps.check.outputs.version }}" \
+            --title "v${{ steps.check.outputs.version }}" \
+            --notes "Release ${{ steps.check.outputs.version }}
 
-            See [CHANGELOG.md](CHANGELOG.md) for details.
-          draft: false
-          prerelease: false
+          See [CHANGELOG.md](CHANGELOG.md) for details."
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
