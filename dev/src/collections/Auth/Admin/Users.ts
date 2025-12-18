@@ -31,6 +31,6 @@ export const AdminUsers: CollectionConfig = withUsersCollection({
   ],
   timestamps: true,
   hooks: {
-    afterDelete: [deleteLinkedAccounts('adminAccounts')],
+    beforeDelete: [deleteLinkedAccounts('adminAccounts')],
   },
 })
