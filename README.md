@@ -158,6 +158,8 @@ export function UserProfile() {
 | `allowSignUp` | `boolean` | ❌ | `false` | Allow new user registrations (secure by default) |
 | `successRedirectPath` | `string` | ❌ | `'/'` | Redirect path after successful auth |
 | `errorRedirectPath` | `string` | ❌ | `'/auth/error'` | Redirect path on auth error |
+| `endWorkOsSessionOnSignout` | `boolean` | ❌ | `false` | End the WorkOS session on sign out (forces full re-auth) |
+| `postSignoutRedirectPath` | `\`/${string}\` \| (req) => \`/${string}\` \| Promise<\`/${string}\`>` | ❌ | `'/admin/login'` if `useAdmin` else `'/'` | Redirect path after sign out (full URLs accepted but normalized to a path) |
 | `onSuccess` | `function` | ❌ | - | Custom callback after successful auth |
 | `onError` | `function` | ❌ | - | Custom error handler |
 
@@ -518,6 +520,24 @@ authPlugin({
     client_secret: process.env.WORKOS_API_KEY!,
     cookie_password: process.env.WORKOS_COOKIE_PASSWORD!,
     connection: 'conn_123456', // WorkOS connection ID
+  },
+})
+```
+
+### Sign-Out Behavior and Redirects
+
+By default, sign out only clears the local Payload session cookies. If you want to fully end the WorkOS session (so the user must re-authenticate with their IdP), set `endWorkOsSessionOnSignout: true`. `postSignoutRedirectPath` expects a path, but full URLs are accepted and normalized to a path. You can also control the post-signout redirect, including dynamic URLs:
+
+```typescript
+authPlugin({
+  name: 'app',
+  usersCollectionSlug: 'users',
+  accountsCollectionSlug: 'accounts',
+  workosProvider: { /* ... */ },
+  endWorkOsSessionOnSignout: true,
+  postSignoutRedirectPath: ({ headers }) => {
+    const host = headers.get('host') || 'example.com'
+    return `https://${host}/goodbye`
   },
 })
 ```
