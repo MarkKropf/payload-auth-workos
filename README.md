@@ -779,6 +779,17 @@ pnpm test
 pnpm lint
 ```
 
+### Testing Unreleased Builds
+
+For local development, you can run the plugin inside the `/dev` app to test changes quickly.
+
+If you want to validate the built package output, install a feature branch directly in another project. The `prepare` script builds `dist` during install so the distributed artifacts are available:
+
+```bash
+# Install from a feature branch
+pnpm add github:MarkKropf/payload-auth-workos#your-branch
+```
+
 ### Project Structure
 
 ```text

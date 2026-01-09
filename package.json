@@ -58,6 +58,7 @@
     "generate:types": "pnpm dev:generate-types",
     "lint": "eslint",
     "lint:fix": "eslint ./src --fix",
+    "prepare": "pnpm clean && pnpm build",
     "prepublishOnly": "pnpm clean && pnpm build",
     "test": "pnpm test:int && pnpm test:e2e",
     "test:e2e": "NODE_ENV=test playwright test",
