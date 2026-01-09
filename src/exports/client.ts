@@ -9,8 +9,8 @@ export type { AuthPluginConfig, WorkOSProviderConfig, AuthPlugin } from '../type
 // Client-side components
 export { LoginButton } from '../components/LoginButton.js'
 export type { LoginButtonProps } from '../components/LoginButton.js'
-export { LogoutButton } from '../components/LogoutButton.js'
-export type { LogoutButtonProps } from '../components/LogoutButton.js'
+export { AdminLogoutButton } from '../components/AdminLogoutButton.js'
+export type { AdminLogoutButtonProps } from '../components/AdminLogoutButton.js'
 
 // Client-side auth context
 export { AuthProvider, useAuth, createAuthClient } from '../components/AuthClient.js'

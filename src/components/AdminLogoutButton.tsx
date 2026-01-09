@@ -5,7 +5,7 @@ import React from 'react'
 
 const baseClass = 'nav'
 
-export interface LogoutButtonProps {
+export interface AdminLogoutButtonProps {
   /**
    * The endpoint to redirect to for logout
    */
@@ -13,7 +13,7 @@ export interface LogoutButtonProps {
   tabIndex?: number
 }
 
-export const LogoutButton: React.FC<LogoutButtonProps> = ({ href, tabIndex = 0 }) => {
+export const AdminLogoutButton: React.FC<AdminLogoutButtonProps> = ({ href, tabIndex = 0 }) => {
   const { t } = useTranslation()
 
   return (

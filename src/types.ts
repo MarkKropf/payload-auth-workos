@@ -95,7 +95,7 @@ export interface AuthPluginConfig {
   endWorkOsSessionOnSignout?: boolean
 
   /**
-   * Whether to automatically replace the Payload admin logout button with the plugin's LogoutButton.
+   * Whether to automatically replace the Payload admin logout button with the plugin's AdminLogoutButton.
    * This wires the button to /api/{name}/auth/signout for proper cookie clearing and optional WorkOS logout.
    * @default false
    */

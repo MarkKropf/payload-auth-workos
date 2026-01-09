@@ -159,8 +159,8 @@ export function UserProfile() {
 | `successRedirectPath` | `string` | ❌ | `'/'` | Redirect path after successful auth |
 | `errorRedirectPath` | `string` | ❌ | `'/auth/error'` | Redirect path on auth error |
 | `endWorkOsSessionOnSignout` | `boolean` | ❌ | `false` | End the WorkOS session on sign out (forces full re-auth) |
-| `replaceAdminLogoutButton` | `boolean` | ❌ | `false` | Replace the Payload admin logout button with the plugin LogoutButton |
-| `postSignoutRedirectPath` | `\`/${string}\` \| (req) => \`/${string}\` \| Promise<\`/${string}\`>` | ❌ | `'/admin/login'` if `useAdmin` else `'/'` | Redirect path after sign out (full URLs accepted but normalized to a path) |
+| `replaceAdminLogoutButton` | `boolean` | ❌ | `false` | Replace the Payload admin logout button with the plugin AdminLogoutButton |
+| `postSignoutRedirectPath` | `\`/${string}\` \| (req) => \`/${string}\` \| Promise<\`/${string}\`>` | ❌ | `'/admin/login'` if `useAdmin` else `'/'` | Redirect path after sign out |
 | `onSuccess` | `function` | ❌ | - | Custom callback after successful auth |
 | `onError` | `function` | ❌ | - | Custom error handler |
 
@@ -436,7 +436,7 @@ export default buildConfig({
     components: {
       logout: {
         Button: {
-          path: 'payload-auth-workos/client#LogoutButton',
+          path: 'payload-auth-workos/client#AdminLogoutButton',
           clientProps: {
             href: '/api/{name}/auth/signout',
           },
@@ -447,14 +447,14 @@ export default buildConfig({
 })
 ```
 
-**LogoutButton Props:**
+**AdminLogoutButton Props:**
 
 | Prop | Type | Required | Default | Description |
 |------|------|----------|---------|-------------|
 | `href` | `string` | ✅ | - | The signout endpoint URL (e.g., `/api/admin/auth/signout`) |
 | `tabIndex` | `number` | ❌ | `0` | Tab order for keyboard navigation |
 
-**Note:** The `LogoutButton` is intended for the Payload admin UI only, since it relies on `@payloadcms/ui` components and translations.
+**Note:** The `AdminLogoutButton` is intended for the Payload admin UI only, since it relies on `@payloadcms/ui` components and translations.
 
 #### Creating a Custom Logout Button
 
@@ -744,17 +744,17 @@ import {
 For client-side components (use in files with `'use client'` directive):
 
 ```typescript
-import { LoginButton, LogoutButton, AuthProvider, useAuth, createAuthClient } from 'payload-auth-workos/client'
-import type { LoginButtonProps, LogoutButtonProps, AuthContextType, AuthProviderProps } from 'payload-auth-workos/client'
+import { LoginButton, AdminLogoutButton, AuthProvider, useAuth, createAuthClient } from 'payload-auth-workos/client'
+import type { LoginButtonProps, AdminLogoutButtonProps, AuthContextType, AuthProviderProps } from 'payload-auth-workos/client'
 ```
 
 - `LoginButton` - Customizable login button component for admin panel
-- `LogoutButton` - Payload-style logout button component for admin panel
+- `AdminLogoutButton` - Payload-style logout button component for admin panel
 - `AuthProvider` - Context provider for user sessions
 - `useAuth` - Hook to access the current user session
 - `createAuthClient(slug)` - Factory to create isolated auth clients for multi-collection setups
 - `LoginButtonProps` - TypeScript type for LoginButton props
-- `LogoutButtonProps` - TypeScript type for LogoutButton props
+- `AdminLogoutButtonProps` - TypeScript type for AdminLogoutButton props
 - `AuthContextType` - TypeScript type for auth context
 - `AuthProviderProps` - TypeScript type for auth provider props
 

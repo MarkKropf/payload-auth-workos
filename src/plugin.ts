@@ -135,7 +135,7 @@ export function authPlugin(pluginConfig: AuthPluginConfig) {
           logout: {
             ...(adminConfig?.components?.logout || {}),
             Button: {
-              path: 'payload-auth-workos/client#LogoutButton',
+              path: 'payload-auth-workos/client#AdminLogoutButton',
               clientProps: {
                 href: `${apiPrefix}/${config.name}/auth/signout`,
               },
