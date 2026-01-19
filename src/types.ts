@@ -1,4 +1,4 @@
-import type { Config } from 'payload'
+import type { Config, PayloadRequest } from 'payload'
 
 /**
  * WorkOS provider configuration
@@ -85,6 +85,30 @@ export interface AuthPluginConfig {
    * WorkOS provider configuration
    */
   workosProvider: WorkOSProviderConfig
+
+  /**
+   * Whether to end the WorkOS session when signing out.
+   * If true, the user will be redirected to WorkOS to end their session and will need to fully re-authenticate.
+   * If false (default), only the local Payload session is cleared, and WorkOS session remains active.
+   * @default false
+   */
+  endWorkOsSessionOnSignout?: boolean
+
+  /**
+   * Whether to automatically replace the Payload admin logout button with the plugin's AdminLogoutButton.
+   * This wires the button to /api/{name}/auth/signout for proper cookie clearing and optional WorkOS logout.
+   * @default false
+   */
+  replaceAdminLogoutButton?: boolean
+
+  /**
+   * Path to redirect to after signing out.
+   * Can be a path string or a function that returns a path for dynamic URLs.
+   * Full URLs are accepted but will be normalized to a path (host is stripped).
+   * If endWorkOsSessionOnSignout is true, this will be passed as the return_to parameter to WorkOS logout.
+   * @default '/admin/login' if useAdmin is true, otherwise '/'
+   */
+  postSignoutRedirectPath?: `/${string}` | ((req: PayloadRequest) => `/${string}` | Promise<`/${string}`>)
 
   /**
    * Custom callback handler for after user is authenticated

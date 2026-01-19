@@ -158,6 +158,9 @@ export function UserProfile() {
 | `allowSignUp` | `boolean` | ❌ | `false` | Allow new user registrations (secure by default) |
 | `successRedirectPath` | `string` | ❌ | `'/'` | Redirect path after successful auth |
 | `errorRedirectPath` | `string` | ❌ | `'/auth/error'` | Redirect path on auth error |
+| `endWorkOsSessionOnSignout` | `boolean` | ❌ | `false` | End the WorkOS session on sign out (forces full re-auth) |
+| `replaceAdminLogoutButton` | `boolean` | ❌ | `false` | Replace the Payload admin logout button with the plugin AdminLogoutButton |
+| `postSignoutRedirectPath` | `\`/${string}\` \| (req) => \`/${string}\` \| Promise<\`/${string}\`>` | ❌ | `'/admin/login'` if `useAdmin` else `'/'` | Redirect path after sign out |
 | `onSuccess` | `function` | ❌ | - | Custom callback after successful auth |
 | `onError` | `function` | ❌ | - | Custom error handler |
 
@@ -403,6 +406,67 @@ export default buildConfig({
 })
 ```
 
+### Adding a Logout Button to the Admin Panel
+
+To ensure the WorkOS session is ended (when configured) and cookies are properly cleared, sign out by hitting the plugin's signout endpoint: `/api/{name}/auth/signout`.
+
+If you set `replaceAdminLogoutButton: true`, the plugin will automatically replace the admin logout button to point at `/api/{name}/auth/signout`:
+
+```typescript
+authPlugin({
+  name: 'admin',
+  useAdmin: true,
+  replaceAdminLogoutButton: true,
+  usersCollectionSlug: 'adminUsers',
+  accountsCollectionSlug: 'adminAccounts',
+  workosProvider: workosConfig,
+})
+```
+
+Note: The plugin throws if `admin.components.logout.Button` is already configured. Remove the existing logout button or disable `replaceAdminLogoutButton` to avoid conflicts.
+
+You can also replace the default Payload logout button manually using `admin.components.logout.Button`:
+
+```typescript
+// payload.config.ts
+import { buildConfig } from 'payload'
+
+export default buildConfig({
+  admin: {
+    components: {
+      logout: {
+        Button: {
+          path: 'payload-auth-workos/client#AdminLogoutButton',
+          clientProps: {
+            href: '/api/{name}/auth/signout',
+          },
+        },
+      },
+    },
+  },
+})
+```
+
+**AdminLogoutButton Props:**
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `href` | `string` | ✅ | - | The signout endpoint URL (e.g., `/api/admin/auth/signout`) |
+| `tabIndex` | `number` | ❌ | `0` | Tab order for keyboard navigation |
+
+**Note:** The `AdminLogoutButton` is intended for the Payload admin UI only, since it relies on `@payloadcms/ui` components and translations.
+
+#### Creating a Custom Logout Button
+
+If you need full control, you can create your own component and point it at the signout endpoint:
+
+```typescript
+const CustomLogoutButton = () => (
+  <a href="/api/admin/auth/signout">Sign out</a>
+)
+```
+
+
 ### Manual Collection Configuration
 
 If you need more control over your collections, you can configure them manually using the provided utilities:
@@ -522,6 +586,24 @@ authPlugin({
 })
 ```
 
+### Sign-Out Behavior and Redirects
+
+By default, sign out only clears the local Payload session cookies. If you want to fully end the WorkOS session (so the user must re-authenticate with their IdP), set `endWorkOsSessionOnSignout: true`. `postSignoutRedirectPath` expects a path, but full URLs are accepted and normalized to a path. You can also control the post-signout redirect, including dynamic URLs:
+
+```typescript
+authPlugin({
+  name: 'app',
+  usersCollectionSlug: 'users',
+  accountsCollectionSlug: 'accounts',
+  workosProvider: { /* ... */ },
+  endWorkOsSessionOnSignout: true,
+  postSignoutRedirectPath: ({ headers }) => {
+    const host = headers.get('host') || 'example.com'
+    return `https://${host}/goodbye`
+  },
+})
+```
+
 ## Authentication Endpoints
 
 The plugin creates the following endpoints for each configuration:
@@ -532,6 +614,8 @@ The plugin creates the following endpoints for each configuration:
 - `GET /api/{name}/auth/session` - Returns current session status
 
 (Assuming default `/api` route prefix. If you use a custom `routes.api`, adjust accordingly).
+
+**Note:** For a full sign-out (including ending the WorkOS session when configured), direct users to the plugin's signout endpoint (`/api/{name}/auth/signout`) rather than the default Payload logout route.
 
 ## Collections Schema
 
@@ -660,15 +744,17 @@ import {
 For client-side components (use in files with `'use client'` directive):
 
 ```typescript
-import { LoginButton, AuthProvider, useAuth, createAuthClient } from 'payload-auth-workos/client'
-import type { LoginButtonProps, AuthContextType, AuthProviderProps } from 'payload-auth-workos/client'
+import { LoginButton, AdminLogoutButton, AuthProvider, useAuth, createAuthClient } from 'payload-auth-workos/client'
+import type { LoginButtonProps, AdminLogoutButtonProps, AuthContextType, AuthProviderProps } from 'payload-auth-workos/client'
 ```
 
 - `LoginButton` - Customizable login button component for admin panel
+- `AdminLogoutButton` - Payload-style logout button component for admin panel
 - `AuthProvider` - Context provider for user sessions
 - `useAuth` - Hook to access the current user session
 - `createAuthClient(slug)` - Factory to create isolated auth clients for multi-collection setups
 - `LoginButtonProps` - TypeScript type for LoginButton props
+- `AdminLogoutButtonProps` - TypeScript type for AdminLogoutButton props
 - `AuthContextType` - TypeScript type for auth context
 - `AuthProviderProps` - TypeScript type for auth provider props
 
@@ -691,6 +777,17 @@ pnpm test
 
 # Lint
 pnpm lint
+```
+
+### Testing Unreleased Builds
+
+For local development, you can run the plugin inside the `/dev` app to test changes quickly.
+
+If you want to validate the built package output, install a feature branch directly in another project. The `prepare` script builds `dist` during install so the distributed artifacts are available:
+
+```bash
+# Install from a feature branch
+pnpm add github:MarkKropf/payload-auth-workos#your-branch
 ```
 
 ### Project Structure

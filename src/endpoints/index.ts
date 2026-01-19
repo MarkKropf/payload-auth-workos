@@ -1,8 +1,9 @@
+import { decodeJwt } from 'jose'
 import type { Endpoint, PayloadRequest } from 'payload'
-import type { AuthPluginConfig } from '../types.js'
 import { handleAuthCallback } from '../lib/auth-handler.js'
 import { generateUserToken, getExpiredPayloadCookies, getPayloadCookies } from '../lib/session.js'
 import { getAuthorizationUrl } from '../lib/workos.js'
+import type { AuthPluginConfig } from '../types.js'
 
 /**
  * Get the base URL from the request
@@ -27,6 +28,26 @@ function getRedirectUri(req: PayloadRequest, config: AuthPluginConfig, apiPrefix
   const baseUrl = getBaseUrl(req)
   // Endpoints are accessed through the API prefix (e.g., /api/admin/auth/callback)
   return `${baseUrl}${apiPrefix}/${config.name}/auth/callback`
+}
+
+/**
+ * Normalize redirect values to a safe path (strip host if a full URL is provided).
+ */
+function normalizeRedirectPath(value: string | undefined, fallback: string): string {
+  if (!value) {
+    return fallback
+  }
+
+  if (value.startsWith('/')) {
+    return value
+  }
+
+  try {
+    const url = new URL(value)
+    return `${url.pathname}${url.search}${url.hash}`
+  } catch {
+    return fallback
+  }
 }
 
 /**
@@ -190,7 +211,38 @@ export function createAuthEndpoints(config: AuthPluginConfig, apiPrefix: string 
           // Redirect to home or login page with cookies cleared
           const baseUrl = getBaseUrl(req)
           const redirectPath = config.useAdmin ? '/admin/login' : '/'
-          const redirectUrl = `${baseUrl}${redirectPath}`
+          const postSignoutRedirectPath =  typeof config.postSignoutRedirectPath === 'function'
+              ? await config.postSignoutRedirectPath(req)
+            : config.postSignoutRedirectPath
+          const safeRedirectPath = normalizeRedirectPath(postSignoutRedirectPath, redirectPath)
+          let redirectUrl = `${baseUrl}${safeRedirectPath}`
+
+          if (config.endWorkOsSessionOnSignout && req.user) {
+            // Find the user's WorkOS account to get the access token
+            const accounts = await req.payload.find({
+              collection: config.accountsCollectionSlug,
+              where: {
+                and: [
+                  { user: { equals: req.user.id } },
+                  { provider: { equals: 'workos' } },
+                ],
+              },
+              limit: 1,
+            })
+
+            if (accounts.docs.length > 0 && accounts.docs[0].accessToken) {
+              // decodeJwt can throw if token is malformed
+              try {
+                const { sid: sessionId } = decodeJwt<{ sid: string }>(accounts.docs[0].accessToken)
+                if (sessionId) {
+                  redirectUrl = `https://api.workos.com/user_management/sessions/logout?session_id=${encodeURIComponent(sessionId)}&return_to=${encodeURIComponent(redirectUrl)}`
+                }
+              } catch {
+                // Token expired or malformed, proceed with local logout only
+              }
+            }
+          }
+
           const headers = new Headers({
             Location: redirectUrl,
           })

@@ -50,6 +50,7 @@ export function authPlugin(pluginConfig: AuthPluginConfig) {
       allowSignUp: false,
       successRedirectPath: '/',
       errorRedirectPath: '/auth/error',
+      replaceAdminLogoutButton: false,
       ...pluginConfig,
     }
 
@@ -117,6 +118,30 @@ export function authPlugin(pluginConfig: AuthPluginConfig) {
       adminConfig = {
         ...incomingConfig.admin,
         user: config.usersCollectionSlug,
+      }
+    }
+
+    if (config.replaceAdminLogoutButton) {
+      if (adminConfig?.components?.logout?.Button) {
+        throw new Error(
+          'payload-auth-workos: admin.components.logout.Button is already configured. Remove the existing logout button or disable replaceAdminLogoutButton.',
+        )
+      }
+
+      adminConfig = {
+        ...adminConfig,
+        components: {
+          ...(adminConfig?.components || {}),
+          logout: {
+            ...(adminConfig?.components?.logout || {}),
+            Button: {
+              path: 'payload-auth-workos/client#AdminLogoutButton',
+              clientProps: {
+                href: `${apiPrefix}/${config.name}/auth/signout`,
+              },
+            },
+          },
+        },
       }
     }
 
