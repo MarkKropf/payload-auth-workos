@@ -425,7 +425,7 @@ const Users = {
     // Add custom fields here
   ],
   hooks: {
-    afterDelete: [deleteLinkedAccounts('accounts')], // Clean up accounts when user is deleted
+    beforeDelete: [deleteLinkedAccounts('accounts')], // Clean up accounts when user is deleted
   },
 }
 
@@ -613,7 +613,7 @@ import { deleteLinkedAccounts } from 'payload-auth-workos/collection/hooks'
 const Users = {
   slug: 'users',
   hooks: {
-    afterDelete: [deleteLinkedAccounts('accounts')],
+    beforeDelete: [deleteLinkedAccounts('accounts')],
   },
   // ... rest of config
 }

@@ -31,6 +31,6 @@ export const AppUsers: CollectionConfig = withUsersCollection({
   ],
   timestamps: true,
   hooks: {
-    afterDelete: [deleteLinkedAccounts('appAccounts')],
+    beforeDelete: [deleteLinkedAccounts('appAccounts')],
   },
 })
