@@ -3,6 +3,26 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.12] - 2026-01-19
+
+### Added
+
+- Add optional `endWorkOsSessionOnSignout` config option to fully end WorkOS session on sign out ([#3](https://github.com/MarkKropf/payload-auth-workos/pull/3)) - thanks @MauriceWebb
+- Add `AdminLogoutButton` component for admin panel sign out ([#3](https://github.com/MarkKropf/payload-auth-workos/pull/3)) - thanks @MauriceWebb
+- Add `replaceAdminLogoutButton` config option to automatically replace admin logout button ([#3](https://github.com/MarkKropf/payload-auth-workos/pull/3)) - thanks @MauriceWebb
+- Add `postSignoutRedirectPath` config option with dynamic URL support ([#3](https://github.com/MarkKropf/payload-auth-workos/pull/3)) - thanks @MauriceWebb
+- Add documentation for testing unreleased builds ([#3](https://github.com/MarkKropf/payload-auth-workos/pull/3)) - thanks @MauriceWebb
+
+### Fixed
+
+- Use `beforeDelete` instead of `afterDelete` for `deleteLinkedAccounts` hook to prevent orphaned records ([#1](https://github.com/MarkKropf/payload-auth-workos/pull/1)) - thanks @eukosh
+- Add error handling for JWT decode in signout endpoint
+
+### Changed
+
+- Rename `LogoutButton` to `AdminLogoutButton` for clarity ([#3](https://github.com/MarkKropf/payload-auth-workos/pull/3)) - thanks @MauriceWebb
+- Update Payload dependencies to 3.72.0
+
 ## [1.0.11] - 2025-12-03
 
 ### Fixed
