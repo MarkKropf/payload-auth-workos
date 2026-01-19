@@ -229,19 +229,20 @@ export function createAuthEndpoints(config: AuthPluginConfig, apiPrefix: string 
               },
               limit: 1,
             })
-            
+
             if (accounts.docs.length > 0 && accounts.docs[0].accessToken) {
-              // Decode the access token to get the session ID
-              const { sid: sessionId } = decodeJwt<{ sid: string }>(accounts.docs[0].accessToken)
-              
-              if (sessionId) {
-                // Generate WorkOS logout URL
-                redirectUrl = `https://api.workos.com/user_management/sessions/logout?session_id=${encodeURIComponent(sessionId)}&return_to=${encodeURIComponent(redirectUrl)}`
+              // decodeJwt can throw if token is malformed
+              try {
+                const { sid: sessionId } = decodeJwt<{ sid: string }>(accounts.docs[0].accessToken)
+                if (sessionId) {
+                  redirectUrl = `https://api.workos.com/user_management/sessions/logout?session_id=${encodeURIComponent(sessionId)}&return_to=${encodeURIComponent(redirectUrl)}`
+                }
+              } catch {
+                // Token expired or malformed, proceed with local logout only
               }
             }
           }
 
-          
           const headers = new Headers({
             Location: redirectUrl,
           })
